@@ -25,6 +25,8 @@ def query_llm(prompt, client=None, model="Qwen/Qwen2.5-32B-Instruct-AWQ"):
         return response.choices[0].message.content
     except Exception as e:
         print(f"Error querying LLM: {e}")
+        print("Note: If you haven't configured a local LLM server, this error is expected and can be ignored.")
+        print("The LLM functionality is optional and won't affect other features.")
         return None
 
 def main():
