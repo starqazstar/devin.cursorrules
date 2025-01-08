@@ -19,6 +19,14 @@ def create_llm_client(provider="openai"):
         return OpenAI(
             api_key=api_key
         )
+    elif provider == "deepseek":
+        api_key = os.getenv('DEEPSEEK_API_KEY')
+        if not api_key:
+            raise ValueError("DEEPSEEK_API_KEY not found in environment variables")
+        return OpenAI(
+            api_key=api_key,
+            base_url="https://api.deepseek.com/v1",
+        )
     elif provider == "anthropic":
         api_key = os.getenv('ANTHROPIC_API_KEY')
         if not api_key:
@@ -49,6 +57,8 @@ def query_llm(prompt, client=None, model=None, provider="openai"):
         if model is None:
             if provider == "openai":
                 model = "gpt-3.5-turbo"
+            elif provider == "deepseek":
+                model = "deepseek-chat"
             elif provider == "anthropic":
                 model = "claude-3-sonnet-20240229"
             elif provider == "gemini":
@@ -56,7 +66,7 @@ def query_llm(prompt, client=None, model=None, provider="openai"):
             elif provider == "local":
                 model = "Qwen/Qwen2.5-32B-Instruct-AWQ"
             
-        if provider == "openai" or provider == "local":
+        if provider == "openai" or provider == "local" or provider == "deepseek":
             response = client.chat.completions.create(
                 model=model,
                 messages=[
@@ -85,13 +95,15 @@ def query_llm(prompt, client=None, model=None, provider="openai"):
 def main():
     parser = argparse.ArgumentParser(description='Query an LLM with a prompt')
     parser.add_argument('--prompt', type=str, help='The prompt to send to the LLM', required=True)
-    parser.add_argument('--provider', choices=['openai','anthropic','gemini','local'], default='openai', help='The API provider to use')
+    parser.add_argument('--provider', choices=['openai','anthropic','gemini','local','deepseek'], default='openai', help='The API provider to use')
     parser.add_argument('--model', type=str, help='The model to use (default depends on provider)')
     args = parser.parse_args()
 
     if not args.model:
         if args.provider == 'openai':
             args.model = "gpt-3.5-turbo"
+        elif args.provider == "deepseek":
+            args.model = "deepseek-chat"
         elif args.provider == 'anthropic':
             args.model = "claude-3-5-sonnet-20241022"
         elif args.provider == 'gemini':
