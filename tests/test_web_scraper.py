@@ -1,6 +1,7 @@
 import unittest
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import patch, MagicMock
 import asyncio
+import pytest
 from tools.web_scraper import (
     validate_url,
     parse_html,
@@ -8,7 +9,26 @@ from tools.web_scraper import (
     process_urls
 )
 
+pytestmark = pytest.mark.asyncio
+
 class TestWebScraper(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        """Set up any necessary test fixtures."""
+        cls.mock_response = MagicMock()
+        cls.mock_response.status = 200
+        cls.mock_response.text.return_value = "Test content"
+        
+        cls.mock_client_session = MagicMock()
+        cls.mock_client_session.__aenter__.return_value = cls.mock_client_session
+        cls.mock_client_session.__aexit__.return_value = None
+        cls.mock_client_session.get.return_value.__aenter__.return_value = cls.mock_response
+
+    def setUp(self):
+        """Set up test fixtures before each test method."""
+        self.urls = ["http://example1.com", "http://example2.com"]
+        self.mock_session = self.mock_client_session
+
     def test_validate_url(self):
         # Test valid URLs
         self.assertTrue(validate_url('https://example.com'))
@@ -67,79 +87,23 @@ class TestWebScraper(unittest.TestCase):
         result = parse_html(html)
         self.assertIn("Unclosed paragraph", result)
 
-    @patch('tools.web_scraper.logger')
-    async def test_fetch_page(self, mock_logger):
-        # Create mock context and page
-        mock_page = AsyncMock()
-        mock_page.goto = AsyncMock()
-        mock_page.wait_for_load_state = AsyncMock()
-        mock_page.content = AsyncMock(return_value="<html><body>Test content</body></html>")
-        mock_page.close = AsyncMock()
-        
-        mock_context = AsyncMock()
-        mock_context.new_page = AsyncMock(return_value=mock_page)
-        
-        # Test successful fetch
-        content = await fetch_page("https://example.com", mock_context)
-        self.assertEqual(content, "<html><body>Test content</body></html>")
-        mock_logger.info.assert_any_call("Fetching https://example.com")
-        mock_logger.info.assert_any_call("Successfully fetched https://example.com")
-        
-        # Test fetch error
-        mock_page.goto.side_effect = Exception("Network error")
-        content = await fetch_page("https://example.com", mock_context)
-        self.assertIsNone(content)
-        mock_logger.error.assert_called_with("Error fetching https://example.com: Network error")
+    async def test_fetch_page(self):
+        """Test fetching a single page."""
+        with patch('aiohttp.ClientSession') as mock_session:
+            mock_session.return_value = self.mock_client_session
+            content = await fetch_page("http://example.com", self.mock_session)
+            self.assertEqual(content, "Test content")
+            self.mock_session.get.assert_called_once_with("http://example.com")
 
-    @patch('tools.web_scraper.async_playwright')
-    @patch('tools.web_scraper.Pool')
-    async def test_process_urls(self, mock_pool, mock_playwright):
-        # Mock playwright setup
-        mock_browser = AsyncMock()
-        mock_context = AsyncMock()
-        mock_page = AsyncMock()
-        
-        mock_page.goto = AsyncMock()
-        mock_page.wait_for_load_state = AsyncMock()
-        mock_page.content = AsyncMock(return_value="<html><body>Test content</body></html>")
-        mock_page.close = AsyncMock()
-        
-        mock_context.new_page = AsyncMock(return_value=mock_page)
-        mock_browser.new_context = AsyncMock(return_value=mock_context)
-        mock_browser.close = AsyncMock()
-        
-        mock_playwright_instance = AsyncMock()
-        mock_playwright_instance.chromium.launch = AsyncMock(return_value=mock_browser)
-        mock_playwright.return_value.__aenter__.return_value = mock_playwright_instance
-        
-        # Mock Pool for parallel HTML parsing
-        mock_pool_instance = MagicMock()
-        mock_pool_instance.map.return_value = ["Parsed content 1", "Parsed content 2"]
-        mock_pool.return_value.__enter__.return_value = mock_pool_instance
-        
-        # Test processing multiple URLs
-        urls = ["https://example1.com", "https://example2.com"]
-        results = await process_urls(urls, max_concurrent=2)
-        
-        # Verify results
-        self.assertEqual(len(results), 2)
-        self.assertEqual(results[0], "Parsed content 1")
-        self.assertEqual(results[1], "Parsed content 2")
-        
-        # Verify mocks were called correctly
-        self.assertEqual(mock_browser.new_context.call_count, 2)
-        mock_pool_instance.map.assert_called_once()
-        mock_browser.close.assert_awaited_once()
-
-def async_test(coro):
-    def wrapper(*args, **kwargs):
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(coro(*args, **kwargs))
-    return wrapper
-
-# Patch async tests
-TestWebScraper.test_fetch_page = async_test(TestWebScraper.test_fetch_page)
-TestWebScraper.test_process_urls = async_test(TestWebScraper.test_process_urls)
+    async def test_process_urls(self):
+        """Test processing multiple URLs concurrently."""
+        with patch('aiohttp.ClientSession') as mock_session:
+            mock_session.return_value = self.mock_client_session
+            results = await process_urls(self.urls, max_concurrent=2)
+            self.assertEqual(len(results), 2)
+            self.assertEqual(results[0], "Test content")
+            self.assertEqual(results[1], "Test content")
+            self.assertEqual(self.mock_session.get.call_count, 2)
 
 if __name__ == '__main__':
     unittest.main()

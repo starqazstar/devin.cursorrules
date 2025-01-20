@@ -12,6 +12,8 @@ python-dotenv>=1.0.0
 
 # Testing
 unittest2>=1.1.0
+pytest>=8.0.0
+pytest-asyncio>=0.23.5
 
 # Google Generative AI
 google-generativeai

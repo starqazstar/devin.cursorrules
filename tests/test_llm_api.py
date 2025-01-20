@@ -206,7 +206,7 @@ class TestLLMAPI(unittest.TestCase):
         self.assertEqual(response, "Test OpenAI response")
         self.mock_openai_client.chat.completions.create.assert_called_once_with(
             model="gpt-4o",
-            messages=[{"role": "user", "content": "Test prompt"}],
+            messages=[{"role": "user", "content": [{"type": "text", "text": "Test prompt"}]}],
             temperature=0.7
         )
 
@@ -218,7 +218,7 @@ class TestLLMAPI(unittest.TestCase):
         self.assertEqual(response, "Test Azure OpenAI response")
         self.mock_azure_client.chat.completions.create.assert_called_once_with(
             model=os.getenv('AZURE_OPENAI_MODEL_DEPLOYMENT', 'gpt-4o-ms'),
-            messages=[{"role": "user", "content": "Test prompt"}],
+            messages=[{"role": "user", "content": [{"type": "text", "text": "Test prompt"}]}],
             temperature=0.7
         )
 
@@ -230,7 +230,7 @@ class TestLLMAPI(unittest.TestCase):
         self.assertEqual(response, "Test OpenAI response")
         self.mock_openai_client.chat.completions.create.assert_called_once_with(
             model="deepseek-chat",
-            messages=[{"role": "user", "content": "Test prompt"}],
+            messages=[{"role": "user", "content": [{"type": "text", "text": "Test prompt"}]}],
             temperature=0.7
         )
 
@@ -243,7 +243,7 @@ class TestLLMAPI(unittest.TestCase):
         self.mock_anthropic_client.messages.create.assert_called_once_with(
             model="claude-3-sonnet-20240229",
             max_tokens=1000,
-            messages=[{"role": "user", "content": "Test prompt"}]
+            messages=[{"role": "user", "content": [{"type": "text", "text": "Test prompt"}]}]
         )
 
     @unittest.skipIf(skip_llm_tests, skip_message)
@@ -263,7 +263,7 @@ class TestLLMAPI(unittest.TestCase):
         self.assertEqual(response, "Test OpenAI response")
         self.mock_openai_client.chat.completions.create.assert_called_once_with(
             model="Qwen/Qwen2.5-32B-Instruct-AWQ",
-            messages=[{"role": "user", "content": "Test prompt"}],
+            messages=[{"role": "user", "content": [{"type": "text", "text": "Test prompt"}]}],
             temperature=0.7
         )
 
@@ -275,7 +275,7 @@ class TestLLMAPI(unittest.TestCase):
         self.assertEqual(response, "Test OpenAI response")
         self.mock_openai_client.chat.completions.create.assert_called_once_with(
             model="custom-model",
-            messages=[{"role": "user", "content": "Test prompt"}],
+            messages=[{"role": "user", "content": [{"type": "text", "text": "Test prompt"}]}],
             temperature=0.7
         )
 
@@ -287,7 +287,7 @@ class TestLLMAPI(unittest.TestCase):
         self.assertEqual(response, "Test OpenAI response")
         self.mock_openai_client.chat.completions.create.assert_called_once_with(
             model="o1",
-            messages=[{"role": "user", "content": "Test prompt"}],
+            messages=[{"role": "user", "content": [{"type": "text", "text": "Test prompt"}]}],
             response_format={"type": "text"},
             reasoning_effort="low"
         )

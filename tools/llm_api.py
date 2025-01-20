@@ -8,6 +8,9 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 import sys
+import base64
+from typing import Optional, Union, List
+import mimetypes
 
 def load_environment():
     """Load environment variables from .env files in order of precedence"""
@@ -42,6 +45,25 @@ def load_environment():
 
 # Load environment variables at module import
 load_environment()
+
+def encode_image_file(image_path: str) -> tuple[str, str]:
+    """
+    Encode an image file to base64 and determine its MIME type.
+    
+    Args:
+        image_path (str): Path to the image file
+        
+    Returns:
+        tuple: (base64_encoded_string, mime_type)
+    """
+    mime_type, _ = mimetypes.guess_type(image_path)
+    if not mime_type:
+        mime_type = 'image/png'  # Default to PNG if type cannot be determined
+        
+    with open(image_path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+        
+    return encoded_string, mime_type
 
 def create_llm_client(provider="openai"):
     if provider == "openai":
@@ -89,7 +111,20 @@ def create_llm_client(provider="openai"):
     else:
         raise ValueError(f"Unsupported provider: {provider}")
 
-def query_llm(prompt, client=None, model=None, provider="openai"):
+def query_llm(prompt: str, client=None, model=None, provider="openai", image_path: Optional[str] = None) -> Optional[str]:
+    """
+    Query an LLM with a prompt and optional image attachment.
+    
+    Args:
+        prompt (str): The text prompt to send
+        client: The LLM client instance
+        model (str, optional): The model to use
+        provider (str): The API provider to use
+        image_path (str, optional): Path to an image file to attach
+        
+    Returns:
+        Optional[str]: The LLM's response or None if there was an error
+    """
     if client is None:
         client = create_llm_client(provider)
     
@@ -108,11 +143,28 @@ def query_llm(prompt, client=None, model=None, provider="openai"):
                 model = "gemini-pro"
             elif provider == "local":
                 model = "Qwen/Qwen2.5-32B-Instruct-AWQ"
-            
+        
         if provider in ["openai", "local", "deepseek", "azure"]:
+            messages = [{"role": "user", "content": []}]
+            
+            # Add text content
+            messages[0]["content"].append({
+                "type": "text",
+                "text": prompt
+            })
+            
+            # Add image content if provided
+            if image_path:
+                if provider == "openai":
+                    encoded_image, mime_type = encode_image_file(image_path)
+                    messages[0]["content"] = [
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url", "image_url": {"url": f"data:{mime_type};base64,{encoded_image}"}}
+                    ]
+            
             kwargs = {
                 "model": model,
-                "messages": [{"role": "user", "content": prompt}],
+                "messages": messages,
                 "temperature": 0.7,
             }
             
@@ -124,21 +176,42 @@ def query_llm(prompt, client=None, model=None, provider="openai"):
             
             response = client.chat.completions.create(**kwargs)
             return response.choices[0].message.content
+            
         elif provider == "anthropic":
+            messages = [{"role": "user", "content": []}]
+            
+            # Add text content
+            messages[0]["content"].append({
+                "type": "text",
+                "text": prompt
+            })
+            
+            # Add image content if provided
+            if image_path:
+                encoded_image, mime_type = encode_image_file(image_path)
+                messages[0]["content"].append({
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": mime_type,
+                        "data": encoded_image
+                    }
+                })
+            
             response = client.messages.create(
                 model=model,
                 max_tokens=1000,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
+                messages=messages
             )
             return response.content[0].text
+            
         elif provider == "gemini":
             model = client.GenerativeModel(model)
             response = model.generate_content(prompt)
             return response.text
+            
     except Exception as e:
-        print(f"Error querying LLM: {e}")
+        print(f"Error querying LLM: {e}", file=sys.stderr)
         return None
 
 def main():
@@ -146,11 +219,12 @@ def main():
     parser.add_argument('--prompt', type=str, help='The prompt to send to the LLM', required=True)
     parser.add_argument('--provider', choices=['openai','anthropic','gemini','local','deepseek','azure'], default='openai', help='The API provider to use')
     parser.add_argument('--model', type=str, help='The model to use (default depends on provider)')
+    parser.add_argument('--image', type=str, help='Path to an image file to attach to the prompt')
     args = parser.parse_args()
 
     if not args.model:
         if args.provider == 'openai':
-            args.model = "gpt-3.5-turbo"
+            args.model = "gpt-4o" 
         elif args.provider == "deepseek":
             args.model = "deepseek-chat"
         elif args.provider == 'anthropic':
@@ -161,7 +235,7 @@ def main():
             args.model = os.getenv('AZURE_OPENAI_MODEL_DEPLOYMENT', 'gpt-4o-ms')  # Get from env with fallback
 
     client = create_llm_client(args.provider)
-    response = query_llm(args.prompt, client, model=args.model, provider=args.provider)
+    response = query_llm(args.prompt, client, model=args.model, provider=args.provider, image_path=args.image)
     if response:
         print(response)
     else:
