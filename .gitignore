@@ -64,3 +64,8 @@ credentials.json
 
 # specstory
 .specstory/
+
+# sensitive files
+*.yml
+*.yaml
+!research/dify-workflow/analysis/*.yml.example

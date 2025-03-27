@@ -1,0 +1,33 @@
+# Dify工作流配置示例
+# 注意：这是一个示例文件，实际配置请参考文档
+
+# 工作流基本信息
+name: "示例工作流"
+description: "这是一个示例工作流配置"
+
+# 工作流步骤
+steps:
+  - name: "步骤1"
+    type: "action"
+    config:
+      # 具体配置项
+      pass
+
+  - name: "步骤2"
+    type: "condition"
+    config:
+      # 条件配置
+      pass
+
+# 工作流变量
+variables:
+  - name: "变量1"
+    type: "string"
+    description: "变量描述"
+
+# 工作流触发器
+triggers:
+  - type: "manual"
+    config:
+      # 触发器配置
+      pass 

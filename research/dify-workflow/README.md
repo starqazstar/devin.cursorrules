@@ -9,6 +9,8 @@
 ```
 research/dify-workflow/
 ├── analysis/          # DSL文件分析文档
+│   ├── workflow.yml.example  # 示例配置文件
+│   └── workflow.yml         # 实际配置文件（本地，不提交）
 ├── implementation/    # 工作流实现和优化代码
 └── docs/             # 技术文档和使用说明
 ```
@@ -27,6 +29,15 @@ research/dify-workflow/
 - [ ] 功能优化
 - [ ] 文档完善
 
+## 敏感文件处理
+
+本项目中的 `.yml` 和 `.yaml` 文件包含敏感信息，不会被提交到Git仓库。具体说明：
+
+1. 所有 `.yml` 和 `.yaml` 文件默认被 `.gitignore` 忽略
+2. 仅 `analysis/*.yml.example` 文件会被提交，作为配置模板
+3. 实际配置文件应保存在本地，不要提交到Git仓库
+4. 分析文档中引用敏感信息时，请使用占位符或示例数据
+
 ## 使用说明
 
 待补充...
@@ -36,3 +47,4 @@ research/dify-workflow/
 - 保持代码和文档的同步更新
 - 记录所有重要的发现和决策
 - 确保优化方案的可维护性
+- 不要提交包含敏感信息的配置文件
