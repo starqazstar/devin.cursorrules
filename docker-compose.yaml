@@ -1,0 +1,84 @@
+# API service
+api:
+  image: langgenius/dify-api:1.1.3
+  restart: always
+  ports:
+    - "5001:5001"
+  environment:
+    # Use the shared environment variables.
+    <<: *shared-api-worker-env
+    # Startup mode, 'api' starts the API server.
+    MODE: api
+    SENTRY_DSN: ${API_SENTRY_DSN:-}
+    SENTRY_TRACES_SAMPLE_RATE: ${API_SENTRY_TRACES_SAMPLE_RATE:-1.0}
+    SENTRY_PROFILES_SAMPLE_RATE: ${API_SENTRY_PROFILES_SAMPLE_RATE:-1.0}
+    PLUGIN_REMOTE_INSTALL_HOST: ${EXPOSE_PLUGIN_DEBUGGING_HOST:-localhost}
+    PLUGIN_REMOTE_INSTALL_PORT: ${EXPOSE_PLUGIN_DEBUGGING_PORT:-5003}
+    PLUGIN_MAX_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
+    INNER_API_KEY_FOR_PLUGIN: ${PLUGIN_DIFY_INNER_API_KEY:-QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1}
+    # Startup
+    EDITION: SELF_HOSTED
+    DEPLOY_ENV: PRODUCTION
+    DEBUG: "false"
+    SENTRY: "false"
+    DIFY_BIND_ADDRESS: ${DIFY_BIND_ADDRESS:-0.0.0.0}
+    DIFY_PORT: ${DIFY_PORT:-5001}
+    CONSOLE_API_URL: ${CONSOLE_API_URL:-http://localhost:5001}
+    CONSOLE_WEB_URL: ${CONSOLE_WEB_URL:-http://localhost}
+    SERVICE_API_URL: ${SERVICE_API_URL:-http://localhost:5001}
+    FILES_URL: ${FILES_URL:-http://localhost:5001}
+    # Storage
+    STORAGE_TYPE: local
+    STORAGE_LOCAL_PATH: /app/api/storage
+    # Database
+    DB_HOST: db
+    DB_PORT: 5432
+    DB_USERNAME: postgres
+    DB_PASSWORD: difyai123456
+    DB_DATABASE: dify
+    # Redis
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
+    REDIS_USERNAME: ""
+    REDIS_PASSWORD: difyai123456
+    REDIS_DB: "0"
+    # CORS
+    WEB_API_CORS_ALLOW_ORIGINS: '*'
+    CONSOLE_CORS_ALLOW_ORIGINS: '*'
+    # Plugin
+    PLUGIN_DAEMON_URL: http://plugin_daemon:5002
+    # Vector Store
+    VECTOR_STORE: weaviate
+    WEAVIATE_ENDPOINT: http://weaviate:8080
+    WEAVIATE_API_KEY: WVF5YThaHlkYwhGUSmCRgsX3tD5ngdN8pkih
+    WEAVIATE_GRPC_ENABLED: "false"
+    WEAVIATE_BATCH_SIZE: "100"
+    # HTTPS
+    HTTPS_PROXY: ""
+    HTTP_PROXY: http://ssrf_proxy:3128
+    NO_PROXY: weaviate,plugin_daemon
+  volumes:
+    # Mount the storage directory to the container, for storing user files.
+    - ./volumes/storage:/app/api/storage
+  depends_on:
+    - db
+    - redis
+  networks:
+    - default
+
+# Web service
+web:
+  image: langgenius/dify-web:1.1.3
+  restart: always
+  ports:
+    - "5002:5002"
+  environment:
+    APP_API_URL: http://api:5001
+    CONSOLE_API_URL: http://api:5001
+    SERVICE_API_URL: http://api:5001
+  volumes:
+    - ./volumes/web:/app/web
+  depends_on:
+    - api
+  networks:
+    - default
