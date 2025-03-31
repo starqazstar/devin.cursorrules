@@ -179,38 +179,39 @@ If needed, you can further use the `web_scraper.py` file to scrape the web page 
   - 配置文件：~/.cursor/mcp.json
   - API 密钥：63e426bd1887061e987988257988573c
   - 服务命令：npx @amap/amap-maps-mcp-server
+  - 服务状态：运行中
 - 旅行相关文件：
   - travel_plan.html
   - huizhou_trip.md
   - print_button.css
   - 惠州旅游网站提示词.md
 
-### 工具可用性验证计划：
-1. 高德地图 MCP 服务
-   - 检查服务状态
-   - 测试基本 API 调用
-   - 验证地理编码功能
-2. LLM API 服务
-   - 测试 Anthropic API
-   - 测试 DeepSeek API
-   - 配置并测试其他 API
-3. 搜索引擎服务
-   - 验证 DuckDuckGo 搜索
-   - 测试网页抓取
-4. 截图验证工具
-   - 测试网页截图
-   - 验证 LLM 图像分析
-5. Web 爬虫工具
-   - 测试单页抓取
-   - 验证并发抓取
+### 工具可用性验证状态：
+[X] 高德地图 MCP 服务
+    - 服务启动成功 ✓
+    - 地理编码测试通过 ✓
+    - 逆地理编码测试通过 ✓
+[ ] LLM API 服务
+    - Anthropic API 待测试
+    - DeepSeek API 待测试
+    - 其他 API 待配置
+[ ] 搜索引擎服务
+    - DuckDuckGo 搜索待测试
+    - 网页抓取待测试
+[ ] 截图验证工具
+    - 网页截图待测试
+    - LLM 图像分析待测试
+[ ] Web 爬虫工具
+    - 单页抓取待测试
+    - 并发抓取待测试
 
 ### 下一步：
-1. 启动并测试服务
-   - 启动高德地图 MCP 服务
-   - 测试 API 连接
-2. 整理旅行相关文件
-   - 检查文件完整性
-   - 组织文件结构
+1. 测试 LLM API 服务
+   - 验证 Anthropic API
+   - 测试 DeepSeek API
+2. 测试搜索和爬虫工具
+   - 验证搜索功能
+   - 测试网页抓取
 3. 准备开发环境
    - 配置 VS Code
    - 设置调试环境
