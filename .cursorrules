@@ -100,6 +100,44 @@ If needed, you can further use the `web_scraper.py` file to scrape the web page 
 - Use 'gpt-4o' as the model name for OpenAI's GPT-4 with vision capabilities
 - When searching for recent news, use the current year (2025) instead of previous years, or simply use the "recent" keyword to get the latest information
 
+## 高德地图 MCP 配置规则
+- MCP 配置文件位置：/Users/public1/.cursor/mcp.json
+- API Key 配置：63e426bd1887061e987988257988573c
+- 服务启动命令：npx @amap/amap-maps-mcp-server
+- 默认服务端口：3000
+
+## MCP 服务使用规则
+- 启动服务前确保 mcp.json 格式正确
+- API Key 必须通过环境变量配置
+- 服务健康检查：curl http://localhost:3000/health
+- 所有请求需要添加错误重试机制
+- 注意请求频率限制
+
+## 开发规范
+- 使用 TypeScript 进行开发
+- 遵循 RESTful API 设计规范
+- 实现完整的错误处理机制
+- 添加详细的日志记录
+- 确保代码注释完整
+
+## 测试规范
+- 服务启动前进行配置验证
+- 定期检查服务健康状态
+- 保存测试结果日志
+- 监控 API 调用限制
+
+## 安全规则
+- API Key 必须通过环境变量管理
+- 敏感配置信息不得硬编码
+- 实现请求签名验证
+- 数据传输使用 HTTPS
+
+## 性能规则
+- 实现请求缓存机制
+- 控制并发请求数量
+- 优化响应时间
+- 监控服务资源使用
+
 # Scratchpad
 
 ## 工作空间准备
@@ -167,12 +205,12 @@ If needed, you can further use the `web_scraper.py` file to scrape the web page 
    - 验证并发抓取
 
 ### 下一步：
-1. 恢复旅行相关文件
-   - 从 stash 中恢复文件
-   - 检查文件完整性
-2. 启动并测试服务
+1. 启动并测试服务
    - 启动高德地图 MCP 服务
    - 测试 API 连接
+2. 整理旅行相关文件
+   - 检查文件完整性
+   - 组织文件结构
 3. 准备开发环境
    - 配置 VS Code
    - 设置调试环境

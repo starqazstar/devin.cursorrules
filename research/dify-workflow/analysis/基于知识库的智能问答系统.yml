@@ -1,0 +1,161 @@
+app:
+  description: '基于知识库的智能问答系统'
+  icon: 🗂️
+  icon_background: '#E0F2FE'
+  mode: completion
+  name: Knowledge Base Assistant
+  use_icon_as_answer_icon: false
+
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/openai:0.0.14@8a331ba0572f889222b76d6a26f718264841e74c849b60f9542963483c5dec99
+
+kind: app
+model_config:
+  agent_mode:
+    enabled: false
+    max_iteration: 5
+    strategy: function_call
+    tools: []
+  annotation_reply:
+    enabled: false
+  chat_prompt_config: {}
+  completion_prompt_config: {}
+  dataset_configs:
+    datasets:
+      datasets: []
+    retrieval_model: single
+  dataset_query_variable: ''
+  external_data_tools: []
+  file_upload:
+    image:
+      detail: high
+      enabled: false
+      number_limits: 3
+      transfer_methods:
+      - remote_url
+      - local_file
+  model:
+    completion_params:
+      frequency_penalty: 0
+      max_tokens: 512
+      presence_penalty: 0
+      stop: []
+      temperature: 0
+      top_p: 1
+    mode: chat
+    name: deepseek-chat
+    provider: deepseek
+  more_like_this:
+    enabled: false
+  opening_statement: '您好，我是基于知识库的智能助手。'
+  pre_prompt: '你是一个知识库问答助手。使用提供的知识库内容作为上下文来回答用户问题。'
+  prompt_type: simple
+  retriever_resource:
+    enabled: true
+  sensitive_word_avoidance:
+    configs: []
+    enabled: false
+    type: ''
+  speech_to_text:
+    enabled: false
+  suggested_questions: []
+  suggested_questions_after_answer:
+    enabled: false
+  text_to_speech:
+    enabled: false
+  user_input_form: []
+version: 0.1.5
+
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  
+  features:
+    opening_statement: '您好,我是基于知识库的智能助手。'
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: llm
+      id: start-llm
+      source: 'start'
+      sourceHandle: source
+      target: 'context_enhance'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: end
+      id: llm-end
+      source: 'context_enhance'
+      sourceHandle: source
+      target: 'end'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+
+    nodes:
+    - data:
+        desc: ''
+        title: '开始'
+        type: start
+        variables: []
+      id: 'start'
+      position:
+        x: 100
+        y: 100
+      type: custom
+      width: 180
+
+    - data:
+        model:
+          provider: deepseek
+          name: deepseek-chat
+          mode: chat
+        prompt_template:
+        - role: system
+          text: '你是一个知识库问答助手。'
+        - role: user
+          text: '{{query}}'
+        title: '知识库问答'
+        type: llm
+      id: 'context_enhance'
+      position:
+        x: 300
+        y: 100
+      type: custom
+      width: 180
+
+    - data:
+        desc: ''
+        title: '结束'
+        type: end
+      id: 'end'
+      position:
+        x: 500
+        y: 100
+      type: custom
+      width: 180
+
+  viewport:
+    x: 0
+    y: 0
+    zoom: 1

@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>惠州三日游行程规划表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --accent-color: #e74c3c;
+            --text-color: #2c3e50;
+            --light-gray: #ecf0f1;
+            --border-color: #bdc3c7;
+            --scenic-color: #e67e22;
+            --food-color: #e74c3c;
+            --transport-color: #3498db;
+            --hotel-color: #9b59b6;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 10mm;
+            }
+            
+            body {
+                margin: 0;
+                padding: 0;
+                width: 210mm;
+                min-height: 297mm;
+                box-sizing: border-box;
+            }
+
+            .header {
+                margin: 0 0 10px 0;
+                padding: 10px;
+                background: none;
+                color: var(--text-color);
+                border-bottom: 2px solid var(--text-color);
+            }
+
+            .title {
+                font-size: 24px;
+                margin: 0;
+            }
+
+            .subtitle {
+                font-size: 14px;
+                margin: 5px 0;
+            }
+
+            .day-schedule {
+                margin: 0 0 15px 0;
+                padding: 10px;
+                page-break-inside: avoid;
+            }
+
+            .day-title {
+                font-size: 18px;
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+            }
+
+            .hotel-options, 
+            .restaurant-options, 
+            .transport-info, 
+            .facilities {
+                margin-top: 5px;
+                padding: 5px;
+            }
+
+            .hotel-option, 
+            .restaurant-option, 
+            .transport-option, 
+            .facility-item {
+                padding: 5px;
+                margin-bottom: 5px;
+            }
+
+            .schedule-item {
+                padding: 5px;
+                margin-bottom: 8px;
+            }
+
+            .notes {
+                margin-top: 5px;
+                padding: 5px;
+            }
+
+            .info-box {
+                margin: 0 0 15px 0;
+                padding: 10px;
+            }
+
+            .info-title {
+                margin-bottom: 10px;
+                padding-bottom: 5px;
+            }
+
+            .contact-grid {
+                margin-top: 5px;
+                grid-gap: 5px;
+            }
+
+            .contact-item {
+                padding: 5px;
+            }
+
+            h3 {
+                font-size: 16px;
+                margin: 8px 0;
+            }
+
+            .hotel-name,
+            .restaurant-name {
+                font-size: 14px;
+            }
+
+            .hotel-address,
+            .restaurant-address,
+            .hotel-feature,
+            .restaurant-feature {
+                font-size: 12px;
+                margin-top: 2px;
+            }
+
+            .transport-title {
+                font-size: 14px;
+            }
+
+            .transport-detail {
+                font-size: 12px;
+                margin-top: 2px;
+            }
+
+            .day-weather {
+                font-size: 12px;
+                padding: 2px 5px;
+                margin-left: 5px;
+            }
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            margin: 0;
+            padding: 10mm;
+            width: 210mm;
+            min-height: 297mm;
+            box-sizing: border-box;
+            color: var(--text-color);
+            background-color: #fff;
+            position: relative;
+        }
+
+        /* 添加裁剪线 */
+        body::before,
+        body::after {
+            content: '';
+            position: absolute;
+            border: 1px dashed #ccc;
+        }
+
+        body::before {
+            top: 5mm;
+            bottom: 5mm;
+            left: 5mm;
+            right: 5mm;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 8px;
+        }
+
+        .title {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .weather {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+
+        .weather-day {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .weather i {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .day-schedule {
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .day-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .schedule-item {
+            padding: 8px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            display: flex;
+            align-items: flex-start;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .schedule-item:hover {
+            background-color: var(--light-gray);
+            transform: translateX(5px);
+        }
+
+        .schedule-item[data-type="scenic"] { border-left-color: var(--scenic-color); }
+        .schedule-item[data-type="food"] { border-left-color: var(--food-color); }
+        .schedule-item[data-type="transport"] { border-left-color: var(--transport-color); }
+        .schedule-item[data-type="hotel"] { border-left-color: var(--hotel-color); }
+
+        .time {
+            min-width: 130px;
+            font-weight: 500;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+
+        .time i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .location {
+            flex-grow: 1;
+            padding-left: 20px;
+            border-left: 2px solid var(--light-gray);
+            font-size: 15px;
+        }
+
+        .notes {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+            padding: 8px;
+            background-color: var(--light-gray);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notes i {
+            color: var(--primary-color);
+        }
+
+        .info-box {
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+
+        .info-title i {
+            font-size: 20px;
+        }
+
+        .info-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .info-list li {
+            padding: 10px;
+            background-color: var(--light-gray);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-list li i {
+            color: var(--primary-color);
+            font-size: 16px;
+        }
+
+        .contact-grid {
+            grid-gap: 10px;
+            margin-top: 10px;
+        }
+
+        .contact-item {
+            padding: 8px;
+        }
+
+        .print-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 30px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .print-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            background-color: var(--secondary-color);
+        }
+
+        .print-button i {
+            font-size: 18px;
+        }
+
+        @media print {
+            .header,
+            .day-schedule,
+            .info-box,
+            .hotel-options,
+            .restaurant-options,
+            .transport-info,
+            .facilities {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .schedule-item:hover {
+                transform: none;
+                background-color: transparent;
+            }
+
+            .print-button {
+                display: none;
+            }
+
+            .day-schedule {
+                break-inside: avoid;
+                box-shadow: none;
+            }
+
+            .info-box {
+                break-inside: avoid;
+                background-color: white;
+            }
+
+            .contact-item, .info-list li {
+                background-color: white;
+                border: 1px solid var(--border-color);
+            }
+
+            .notes {
+                background-color: white;
+                border: 1px dashed var(--border-color);
+            }
+        }
+
+        /* 添加新样式 */
+        .hotel-options, .restaurant-options {
+            margin-top: 8px;
+            padding: 8px;
+        }
+
+        .hotel-option, .restaurant-option {
+            padding: 6px;
+            margin-bottom: 8px;
+        }
+
+        .hotel-name {
+            font-weight: 500;
+            color: var(--hotel-color);
+        }
+
+        .hotel-address {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .hotel-feature {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .restaurant-name {
+            font-weight: 500;
+            color: var(--food-color);
+        }
+
+        .restaurant-address {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .restaurant-feature {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .transport-info {
+            margin-top: 8px;
+            padding: 8px;
+        }
+
+        .transport-option {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: white;
+            border-radius: 6px;
+            border-left: 3px solid var(--transport-color);
+        }
+
+        .transport-title {
+            font-weight: 500;
+            color: var(--transport-color);
+        }
+
+        .transport-detail {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .facilities {
+            margin-top: 8px;
+            padding: 8px;
+        }
+
+        .facility-item {
+            padding: 6px;
+            margin-bottom: 6px;
+        }
+
+        .facility-icon {
+            color: var(--primary-color);
+            width: 20px;
+            text-align: center;
+        }
+
+        .budget-info {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+        }
+
+        .budget-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background-color: white;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .budget-title {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .budget-amount {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .total-budget {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media print {
+            .hotel-options,
+            .restaurant-options,
+            .transport-info,
+            .facilities,
+            .budget-info {
+                background-color: white;
+                border: 1px solid var(--border-color);
+            }
+
+            .hotel-option,
+            .restaurant-option,
+            .transport-option,
+            .facility-item,
+            .budget-item {
+                border: 1px solid var(--border-color);
+            }
+        }
+
+        .day-weather {
+            margin-left: 10px;
+            padding: 3px 8px;
+            font-size: 13px;
+        }
+
+        .day-weather i {
+            color: var(--primary-color);
+            font-size: 16px;
+        }
+
+        @media print {
+            .day-weather {
+                background-color: transparent;
+                border: 1px solid var(--border-color);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">惠州三日游行程规划表</h1>
+        <p class="subtitle">2025年4月4日-6日（清明节假期）</p>
+    </div>
+
+    <div class="day-schedule">
+        <div class="day-title">
+            <i class="fas fa-calendar-day"></i>
+            Day 1 - 4月4日（周四）：惠州西湖东坡祠
+            <div class="day-weather">
+                <i class="fas fa-cloud-sun"></i>
+                13-23℃ 多云转晴
+            </div>
+        </div>
+        
+        <div class="hotel-options">
+            <h3><i class="fas fa-bed"></i> 住宿推荐</h3>
+            <div class="hotel-option">
+                <div class="hotel-name">锦江之星惠州桥东江景酒店</div>
+                <div class="hotel-address">地址：桥东塔仔湖路30号</div>
+                <div class="hotel-feature">特点：临近西湖，江景房，性价比高</div>
+            </div>
+            <div class="hotel-option">
+                <div class="hotel-name">全季酒店(惠州水东街滨江店)</div>
+                <div class="hotel-address">地址：下埔路39号</div>
+                <div class="hotel-feature">特点：品牌连锁，环境舒适，靠近水东街</div>
+            </div>
+            <div class="hotel-option">
+                <div class="hotel-name">丽枫酒店(东江店)</div>
+                <div class="hotel-address">地址：滨江东路11号</div>
+                <div class="hotel-feature">特点：位置优越，可观江景</div>
+            </div>
+        </div>
+
+        <div class="restaurant-options">
+            <h3><i class="fas fa-utensils"></i> 美食推荐</h3>
+            <div class="restaurant-option">
+                <div class="restaurant-name">暹罗湾东南亚餐厅</div>
+                <div class="restaurant-address">地址：桥东街道桥东下板塘下塘街6号</div>
+                <div class="restaurant-feature">特色：东南亚风味，环境优雅</div>
+            </div>
+            <div class="restaurant-option">
+                <div class="restaurant-name">紫金客家餐厅</div>
+                <div class="restaurant-address">地址：东平大路口新村35号</div>
+                <div class="restaurant-feature">特色：正宗客家菜，本地特色</div>
+            </div>
+            <div class="restaurant-option">
+                <div class="restaurant-name">萨莉亚意大利餐厅</div>
+                <div class="restaurant-address">地址：东湖一街1号东湖花园</div>
+                <div class="restaurant-feature">特色：西式简餐，环境优雅</div>
+            </div>
+        </div>
+
+        <div class="transport-info">
+            <h3><i class="fas fa-bus"></i> 交通建议</h3>
+            <div class="transport-option">
+                <div class="transport-title">从惠州站/惠州南站：</div>
+                <div class="transport-detail">优先选择：地铁1号线至西湖站（建设中，预计2024年通车）</div>
+                <div class="transport-detail">备选方案：乘坐2路或9路公交车至西湖公园站</div>
+                <div class="transport-detail">应急方案：打车约15-20分钟，费用约25-30元</div>
+            </div>
+        </div>
+
+        <div class="facilities">
+            <h3><i class="fas fa-map-marker-alt"></i> 周边设施</h3>
+            <div class="facility-item">
+                <i class="fas fa-prescription-bottle facility-icon"></i>
+                <div>百姓大药房（丽湖商务酒店店）- 下角东路24号</div>
+            </div>
+            <div class="facility-item">
+                <i class="fas fa-prescription-bottle facility-icon"></i>
+                <div>全新药店 - 下角东路三巷交叉口</div>
+            </div>
+            <div class="facility-item">
+                <i class="fas fa-prescription-bottle facility-icon"></i>
+                <div>国泰堂大药房 - 润宇广场东南门旁</div>
+            </div>
+        </div>
+
+        <div class="schedule-item" data-type="transport">
+            <span class="time">
+                <i class="fas fa-train"></i>
+                12:00
+            </span>
+            <div class="location">
+                抵达惠州站
+                <div class="notes">
+                    <i class="fas fa-info-circle"></i>
+                    建议提前订好酒店，准备打车或地铁前往
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="hotel">
+            <span class="time">
+                <i class="fas fa-hotel"></i>
+                12:30-13:30
+            </span>
+            <div class="location">
+                酒店办理入住
+                <div class="notes">
+                    <i class="fas fa-bed"></i>
+                    推荐：锦江之星或全季酒店，位置便利，环境舒适
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="scenic">
+            <span class="time">
+                <i class="fas fa-landmark"></i>
+                14:00-16:30
+            </span>
+            <div class="location">
+                游览西湖东坡祠景区
+                <div class="notes">
+                    <i class="fas fa-ticket-alt"></i>
+                    门票：40元/人，必看：东坡纪念馆、苏东坡全息剧场
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="scenic">
+            <span class="time">
+                <i class="fas fa-ship"></i>
+                16:30-17:30
+            </span>
+            <div class="location">
+                西湖游船
+                <div class="notes">
+                    <i class="fas fa-info-circle"></i>
+                    船票：60元/人，推荐傍晚时分，光线最佳
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="food">
+            <span class="time">
+                <i class="fas fa-utensils"></i>
+                18:00-19:30
+            </span>
+            <div class="location">
+                晚餐
+                <div class="notes">
+                    <i class="fas fa-star"></i>
+                    推荐紫金客家餐厅，必点：东坡肉、客家酿豆腐
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="scenic">
+            <span class="time">
+                <i class="fas fa-moon"></i>
+                20:00-21:30
+            </span>
+            <div class="location">
+                夜游西湖
+                <div class="notes">
+                    <i class="fas fa-camera"></i>
+                    免费，推荐：点翠山房、荷花池夜景
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="day-schedule">
+        <div class="day-title">
+            <i class="fas fa-calendar-day"></i>
+            Day 2 - 4月5日（周五）：巽寮湾海上游
+            <div class="day-weather">
+                <i class="fas fa-sun"></i>
+                15-25℃ 晴
+            </div>
+        </div>
+
+        <div class="hotel-options">
+            <h3><i class="fas fa-bed"></i> 住宿推荐</h3>
+            <div class="hotel-option">
+                <div class="hotel-name">海尚湾畔度假酒店</div>
+                <div class="hotel-feature">特点：临海，设施齐全</div>
+                <div class="hotel-feature">价格：约500-800元/晚</div>
+            </div>
+            <div class="hotel-option">
+                <div class="hotel-name">双鱼岛帐篷酒店</div>
+                <div class="hotel-feature">特点：特色露营体验</div>
+                <div class="hotel-feature">价格：约300-500元/晚</div>
+            </div>
+        </div>
+
+        <div class="transport-info">
+            <h3><i class="fas fa-bus"></i> 交通建议</h3>
+            <div class="transport-option">
+                <div class="transport-title">从市区到巽寮湾：</div>
+                <div class="transport-detail">优先选择：惠州南站乘坐高铁至巽寮湾站（在建）</div>
+                <div class="transport-detail">备选方案：乘坐巽寮专线大巴（提前预约座位）</div>
+                <div class="transport-detail">景区内交通：哈罗电动车或景区观光车</div>
+            </div>
+        </div>
+
+        <div class="schedule-item" data-type="food">
+            <span class="time">
+                <i class="fas fa-fish"></i>
+                12:00-13:30
+            </span>
+            <div class="location">
+                午餐
+                <div class="notes">
+                    <i class="fas fa-utensils"></i>
+                    推荐渔家海鲜餐厅，新鲜海鲜
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="scenic">
+            <span class="time">
+                <i class="fas fa-water"></i>
+                14:00-15:30
+            </span>
+            <div class="location">
+                玻璃船观光
+                <div class="notes">
+                    <i class="fas fa-ticket-alt"></i>
+                    票价：128元/人，观赏海底景观
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="scenic">
+            <span class="time">
+                <i class="fas fa-umbrella-beach"></i>
+                16:00-18:00
+            </span>
+            <div class="location">
+                三门岛游览
+                <div class="notes">
+                    <i class="fas fa-ship"></i>
+                    含往返船票，可尝试水上项目
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="food">
+            <span class="time">
+                <i class="fas fa-fire"></i>
+                18:30-20:00
+            </span>
+            <div class="location">
+                海边BBQ
+                <div class="notes">
+                    <i class="fas fa-info-circle"></i>
+                    预订价：168元/人，含海鲜套餐
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="scenic">
+            <span class="time">
+                <i class="fas fa-sparkles"></i>
+                20:00-21:30
+            </span>
+            <div class="location">
+                沙滩放烟花
+                <div class="notes">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    请注意安全，遵守当地规定
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="day-schedule">
+        <div class="day-title">
+            <i class="fas fa-calendar-day"></i>
+            Day 3 - 4月6日（周六）：阿那亚教堂及周边
+            <div class="day-weather">
+                <i class="fas fa-sun"></i>
+                16-26℃ 晴
+            </div>
+        </div>
+
+        <div class="transport-info">
+            <h3><i class="fas fa-bus"></i> 交通建议</h3>
+            <div class="transport-option">
+                <div class="transport-title">景区交通：</div>
+                <div class="transport-detail">优先选择：哈罗电动车或景区观光车</div>
+                <div class="transport-detail">备选方案：步行（景区内步行距离适中）</div>
+                <div class="transport-detail">应急方案：景区专线摆渡车</div>
+            </div>
+        </div>
+
+        <div class="schedule-item" data-type="scenic">
+            <span class="time">
+                <i class="fas fa-church"></i>
+                09:00-10:30
+            </span>
+            <div class="location">
+                阿那亚教堂参观
+                <div class="notes">
+                    <i class="fas fa-info-circle"></i>
+                    免费开放，建议提前查询开放时间
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="scenic">
+            <span class="time">
+                <i class="fas fa-umbrella-beach"></i>
+                10:30-12:00
+            </span>
+            <div class="location">
+                沙滩漫步
+                <div class="notes">
+                    <i class="fas fa-camera"></i>
+                    适合拍照，海边散步
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="food">
+            <span class="time">
+                <i class="fas fa-utensils"></i>
+                12:00-13:30
+            </span>
+            <div class="location">
+                午餐
+                <div class="notes">
+                    <i class="fas fa-map-marker-alt"></i>
+                    教堂周边餐厅
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="scenic">
+            <span class="time">
+                <i class="fas fa-walking"></i>
+                14:00-15:30
+            </span>
+            <div class="location">
+                周边探索
+                <div class="notes">
+                    <i class="fas fa-map"></i>
+                    文艺街区、海滨公园
+                </div>
+            </div>
+        </div>
+        <div class="schedule-item" data-type="transport">
+            <span class="time">
+                <i class="fas fa-suitcase-rolling"></i>
+                16:00
+            </span>
+            <div class="location">
+                返程准备
+                <div class="notes">
+                    <i class="fas fa-taxi"></i>
+                    打车到火车站
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <div class="info-title">
+            <i class="fas fa-exclamation-circle"></i>
+            重要提示
+        </div>
+        <div class="info-list">
+            <div class="info-section">
+                <h4>1. 行程准备</h4>
+                <ul>
+                    <li><i class="fas fa-calendar-check"></i>提前3天预订酒店</li>
+                    <li><i class="fas fa-ticket-alt"></i>提前1天预约玻璃船和BBQ</li>
+                    <li><i class="fas fa-mobile-alt"></i>下载哈啰APP，准备电子支付</li>
+                    <li><i class="fas fa-umbrella-beach"></i>准备防晒用品和遮阳帽</li>
+                </ul>
+            </div>
+            <div class="info-section">
+                <h4>2. 必备物品</h4>
+                <ul>
+                    <li><i class="fas fa-swimming-pool"></i>泳衣和沙滩鞋</li>
+                    <li><i class="fas fa-camera"></i>防水相机或手机防水袋</li>
+                    <li><i class="fas fa-first-aid"></i>常用药品（含晕车药）</li>
+                    <li><i class="fas fa-battery-full"></i>充电宝和充电器</li>
+                </ul>
+            </div>
+            <div class="info-section">
+                <h4>3. 安全提醒</h4>
+                <ul>
+                    <li><i class="fas fa-sun"></i>注意防晒，准备高倍防晒霜</li>
+                    <li><i class="fas fa-water"></i>海边活动注意安全</li>
+                    <li><i class="fas fa-fire"></i>烟花放置需遵守规定</li>
+                    <li><i class="fas fa-shield-alt"></i>保管好随身财物</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <div class="info-title">
+            <i class="fas fa-phone-alt"></i>
+            紧急联系方式
+        </div>
+        <div class="contact-grid">
+            <div class="contact-item">
+                <i class="fas fa-ambulance"></i>
+                急救：120
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-shield-alt"></i>
+                报警：110
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-fire-extinguisher"></i>
+                消防：119
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-info-circle"></i>
+                惠州旅游咨询：0752-12301
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-taxi"></i>
+                出租车投诉：0752-12345
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-cloud-sun"></i>
+                天气预报：12121
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-life-ring"></i>
+                海上救援：12395
+            </div>
+        </div>
+    </div>
+
+    <button class="print-button" onclick="printPlan()">
+        <i class="fas fa-print"></i>
+        打印行程表
+    </button>
+
+    <script>
+        function printPlan() {
+            window.print();
+        }
+    </script>
+</body>
+</html> 

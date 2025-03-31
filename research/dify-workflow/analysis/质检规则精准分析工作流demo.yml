@@ -1,0 +1,197 @@
+app:
+  description: '质检规则精准分析工作流'
+  icon: 🔄
+  icon_background: '#E0F2FE'
+  mode: workflow
+  name: QA Workflow Analyzer
+  use_icon_as_answer_icon: false
+
+kind: app
+model_config:
+  model:
+    provider: deepseek
+    name: deepseek-chat
+    completion_params:
+      temperature: 0.2
+      max_tokens: 2000
+      top_p: 0.9
+  
+  opening_statement: '您好，我是质检规则分析助手。请提供需要分析的案例数据。'
+  
+  pre_prompt: |
+    你是质检规则分析专家。请基于提供的具体字段信息进行分析。
+    
+    案例信息：
+    - 质检单号：{{inspection_id}}
+    - 违规规则：{{violation_rule}}
+    - 违规内容：{{violation_content}}
+    - 违规单句：{{violation_sentence}}
+    - 其他语句：{{other_sentences}}
+    - 人工备注：{{manual_notes}}
+    - 反馈结果：{{feedback_result}}
+    - 案例链接：{{case_link}}
+    
+    请从以下方面进行分析：
+    1. 规则匹配度分析
+       - 违规内容与规则的对应关系
+       - 违规单句的具体违规点
+       - 其他语句的相关性
+    
+    2. 人工判断分析
+       - 备注重点内容提取
+       - 反馈结果合理性
+       - 规则适用建议
+    
+    3. 改进建议
+       - 规则优化方向
+       - 判定标准明确化
+       - 自动化识别可能性
+    
+    4. 规则优化
+       - 规则表述优化建议
+       - 判定标准细化
+       - 自动化识别方案
+
+  user_input_form:
+  - text:
+      default: ''
+      label: '质检单号'
+      required: true
+      variable: inspection_id
+  - text:
+      default: ''
+      label: '违规规则'
+      required: true
+      variable: violation_rule
+  - paragraph:
+      default: ''
+      label: '违规内容'
+      required: true
+      variable: violation_content
+  - paragraph:
+      default: ''
+      label: '违规单句'
+      required: true
+      variable: violation_sentence
+  - paragraph:
+      default: ''
+      label: '其他语句'
+      required: false
+      variable: other_sentences
+  - paragraph:
+      default: ''
+      label: '人工备注'
+      required: false
+      variable: manual_notes
+  - text:
+      default: ''
+      label: '反馈结果'
+      required: true
+      variable: feedback_result
+  - text:
+      default: ''
+      label: '案例链接'
+      required: false
+      variable: case_link
+
+  retriever_resource:
+    enabled: true
+    top_k: 30
+    rerank: true
+
+workflow:
+  graph:
+    nodes:
+    - data:
+        type: start
+        title: '表格输入'
+        variables:
+        - label: '表格数据'
+          type: paragraph
+          required: true
+          variable: table_data
+      id: 'start'
+    
+    - data:
+        type: code
+        title: '数据解析'
+        code: |
+          import pandas as pd
+          import json
+          
+          # 解析输入的表格数据（假设是CSV格式的文本）
+          data = pd.read_csv(StringIO(context['start']['table_data']))
+          
+          # 获取第一行数据作为当前处理数据
+          row = data.iloc[0]
+          
+          # 构建输出字典
+          result = {
+              'inspection_id': str(row['质检单号']),
+              'violation_rule': str(row['违规规则']),
+              'violation_content': str(row['违规内容']),
+              'violation_sentence': str(row['违规内容对应的单句']),
+              'other_sentences': str(row['其余疑似语句']),
+              'manual_notes': str(row['复核的人工备注']),
+              'feedback_result': str(row['人工反馈的结果']),
+              'case_link': str(row['case对应的链接'])
+          }
+          
+          # 返回JSON格式的结果
+          return json.dumps(result, ensure_ascii=False)
+      id: 'parse_data'
+    
+    - data:
+        type: llm
+        title: '规则分析'
+        model:
+          provider: deepseek
+          name: deepseek-chat
+        prompt_template:
+        - role: user
+          text: |
+            请分析以下质检案例：
+            
+            质检单号：{{#parse_data.inspection_id#}}
+            违规规则：{{#parse_data.violation_rule#}}
+            违规内容：{{#parse_data.violation_content#}}
+            违规单句：{{#parse_data.violation_sentence#}}
+            其他语句：{{#parse_data.other_sentences#}}
+            人工备注：{{#parse_data.manual_notes#}}
+            反馈结果：{{#parse_data.feedback_result#}}
+            案例链接：{{#parse_data.case_link#}}
+            
+            请从以下方面进行分析：
+            1. 规则匹配度分析
+            2. 人工判断分析
+            3. 改进建议
+      id: 'rule_analysis'
+    
+    - data:
+        type: end
+        title: '分析结果'
+        outputs:
+        - value_selector:
+          - rule_analysis
+          - text
+          variable: result
+      id: 'end'
+    
+    edges:
+    - source: 'start'
+      target: 'parse_data'
+      data:
+        sourceType: start
+        targetType: code
+    - source: 'parse_data'
+      target: 'rule_analysis'
+      data:
+        sourceType: code
+        targetType: llm
+    - source: 'rule_analysis'
+      target: 'end'
+      data:
+        sourceType: llm
+        targetType: end
+
+version: 0.1.5
