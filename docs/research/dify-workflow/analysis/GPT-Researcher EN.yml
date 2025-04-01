@@ -547,7 +547,7 @@ workflow:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: gpt-4o
+          name: GPT-4o-minio-mini-minio
           provider: openai
         prompt_template:
         - id: 3b248cc7-ce1c-4d24-b20c-aa988aaad672

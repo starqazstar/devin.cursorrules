@@ -225,7 +225,7 @@ class TestLLMAPI(unittest.TestCase):
         response = query_llm("Test prompt", provider="openai")
         self.assertEqual(response, "Test OpenAI response")
         self.mock_openai_client.chat.completions.create.assert_called_once_with(
-            model="gpt-4o",
+            model="GPT-4o-minio-mini-minio",
             messages=[{"role": "user", "content": [{"type": "text", "text": "Test prompt"}]}],
             temperature=0.7
         )
@@ -237,7 +237,7 @@ class TestLLMAPI(unittest.TestCase):
         response = query_llm("Test prompt", provider="azure")
         self.assertEqual(response, "Test Azure OpenAI response")
         self.mock_azure_client.chat.completions.create.assert_called_once_with(
-            model=os.getenv('AZURE_OPENAI_MODEL_DEPLOYMENT', 'gpt-4o-ms'),
+            model=os.getenv('AZURE_OPENAI_MODEL_DEPLOYMENT', 'GPT-4o-minio-mini-minio-ms'),
             messages=[{"role": "user", "content": [{"type": "text", "text": "Test prompt"}]}],
             temperature=0.7
         )

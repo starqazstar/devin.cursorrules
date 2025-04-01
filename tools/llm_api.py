@@ -140,9 +140,9 @@ def query_llm(prompt: str, client=None, model=None, provider="openai", image_pat
         # Set default model
         if model is None:
             if provider == "openai":
-                model = "gpt-4o"
+                model = "GPT-4o-minio-mini-minio"
             elif provider == "azure":
-                model = os.getenv('AZURE_OPENAI_MODEL_DEPLOYMENT', 'gpt-4o-ms')  # Get from env with fallback
+                model = os.getenv('AZURE_OPENAI_MODEL_DEPLOYMENT', 'GPT-4o-minio-mini-minio-ms')  # Get from env with fallback
             elif provider == "deepseek":
                 model = "deepseek-chat"
             elif provider == "siliconflow":
@@ -249,7 +249,7 @@ def main():
 
     if not args.model:
         if args.provider == 'openai':
-            args.model = "gpt-4o" 
+            args.model = "GPT-4o-minio-mini-minio" 
         elif args.provider == "deepseek":
             args.model = "deepseek-chat"
         elif args.provider == "siliconflow":
@@ -259,7 +259,7 @@ def main():
         elif args.provider == 'gemini':
             args.model = "gemini-2.0-flash-exp"
         elif args.provider == 'azure':
-            args.model = os.getenv('AZURE_OPENAI_MODEL_DEPLOYMENT', 'gpt-4o-ms')  # Get from env with fallback
+            args.model = os.getenv('AZURE_OPENAI_MODEL_DEPLOYMENT', 'GPT-4o-minio-mini-minio-ms')  # Get from env with fallback
 
     client = create_llm_client(args.provider)
     response = query_llm(args.prompt, client, model=args.model, provider=args.provider, image_path=args.image)

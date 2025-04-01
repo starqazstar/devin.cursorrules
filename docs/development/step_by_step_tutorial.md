@@ -33,7 +33,7 @@ Like VS Code, many of Cursor's features are accessed through commands in the com
 
 Cursor now provides a unified AI experience with Agent mode as the default. This means you no longer need to worry about switching between different modes like Chat, Composer, or Agent - there's just one smart interface that adapts to your needs.
 
-In the bottom left corner of the chat panel, you can specify which AI model you want to use. Currently, Cursor supports several AI models including Claude, GPT-4o, and o3-mini. We generally recommend using Claude as it performs best in various scenarios, but feel free to experiment with other models.
+In the bottom left corner of the chat panel, you can specify which AI model you want to use. Currently, Cursor supports several AI models including Claude, gpt-4o-mini-minio, and o3-mini. We generally recommend using Claude as it performs best in various scenarios, but feel free to experiment with other models.
 
 Your configuration should look like this (note Claude in the bottom left):
 

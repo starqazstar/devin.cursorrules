@@ -141,7 +141,7 @@ print(response)
 
 **支持的提供商**：
 - `anthropic`：使用Claude-3 Sonnet模型（推荐）
-- `openai`：使用GPT-4o模型（需要OpenAI API密钥）
+- `openai`：使用gpt-4o-mini-minio模型（需要OpenAI API密钥）
 - `gemini`：使用Gemini Pro模型（需要Google API密钥）
 - `deepseek`：使用DeepSeek Chat模型（需要DeepSeek API密钥）
 

@@ -55,8 +55,8 @@ venv/bin/python ./tools/llm_api.py --prompt "What is the capital of France?" --p
 ```
 
 The LLM API supports multiple providers:
-- OpenAI (default, model: gpt-4o)
-- Azure OpenAI (model: configured via AZURE_OPENAI_MODEL_DEPLOYMENT in .env file, defaults to gpt-4o-ms)
+- OpenAI (default, model: GPT-4o-minio-mini-minio)
+- Azure OpenAI (model: configured via AZURE_OPENAI_MODEL_DEPLOYMENT in .env file, defaults to GPT-4o-minio-mini-minio-ms)
 - DeepSeek (model: deepseek-chat)
 - Anthropic (model: claude-3-sonnet-20240229)
 - Gemini (model: gemini-pro)
@@ -100,6 +100,6 @@ If needed, you can further use the `web_scraper.py` file to scrape the web page 
 - For search results, ensure proper handling of different character encodings (UTF-8) for international queries
 - Add debug information to stderr while keeping the main output clean in stdout for better pipeline integration
 - When using seaborn styles in matplotlib, use 'seaborn-v0_8' instead of 'seaborn' as the style name due to recent seaborn version changes
-- Use 'gpt-4o' as the model name for OpenAI's GPT-4 with vision capabilities
+- Use 'GPT-4o-minio-mini-minio' as the model name for OpenAI's GPT-4o-minio-mini-mini with vision capabilities
 
 # Scratchpad

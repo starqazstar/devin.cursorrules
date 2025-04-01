@@ -1,0 +1,330 @@
+{
+    "type": "Page",
+    "title": "项目管理",
+    "body": {
+      "type": "Layout",
+      "children": [
+        {
+          "type": "Card",
+          "title": "搜索条件",
+          "body": {
+            "type": "Form",
+            "api": "/api/project/search",
+            "body": [
+              {
+                "type": "Space",
+                "size": "middle",
+                "children": [
+                  {
+                    "type": "Input",
+                    "name": "projectName",
+                    "label": "项目名称",
+                    "placeholder": "请输入项目名称"
+                  },
+                  {
+                    "type": "Input",
+                    "name": "manager",
+                    "label": "负责人",
+                    "placeholder": "请输入负责人"
+                  },
+                  {
+                    "type": "Select",
+                    "name": "status",
+                    "label": "状态",
+                    "options": [
+                      {
+                        "label": "全部",
+                        "value": ""
+                      },
+                      {
+                        "label": "未开始",
+                        "value": "not_started"
+                      },
+                      {
+                        "label": "进行中",
+                        "value": "in_progress"
+                      },
+                      {
+                        "label": "已完成",
+                        "value": "completed"
+                      },
+                      {
+                        "label": "已延期",
+                        "value": "delayed"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Button",
+                    "label": "搜索",
+                    "actionType": "submit",
+                    "level": "primary"
+                  },
+                  {
+                    "type": "Button",
+                    "label": "重置",
+                    "actionType": "reset"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "Card",
+          "title": "项目列表",
+          "body": {
+            "type": "Space",
+            "direction": "vertical",
+            "size": "middle",
+            "children": [
+              {
+                "type": "Button",
+                "label": "新建项目",
+                "level": "primary",
+                "actionType": "dialog",
+                "dialog": {
+                  "title": "新建项目",
+                  "body": {
+                    "type": "Form",
+                    "api": "/api/project/create",
+                    "body": [
+                      {
+                        "type": "Input",
+                        "name": "projectName",
+                        "label": "项目名称",
+                        "required": true
+                      },
+                      {
+                        "type": "Input",
+                        "name": "manager",
+                        "label": "负责人",
+                        "required": true
+                      },
+                      {
+                        "type": "DatePicker",
+                        "name": "startDate",
+                        "label": "开始日期",
+                        "required": true
+                      },
+                      {
+                        "type": "DatePicker",
+                        "name": "endDate",
+                        "label": "结束日期",
+                        "required": true
+                      },
+                      {
+                        "type": "Select",
+                        "name": "status",
+                        "label": "状态",
+                        "options": [
+                          {
+                            "label": "未开始",
+                            "value": "not_started"
+                          },
+                          {
+                            "label": "进行中",
+                            "value": "in_progress"
+                          }
+                        ],
+                        "required": true
+                      },
+                      {
+                        "type": "InputNumber",
+                        "name": "progress",
+                        "label": "进度",
+                        "min": 0,
+                        "max": 100,
+                        "suffix": "%"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "Table",
+                "source": "$rows",
+                "columns": [
+                  {
+                    "name": "projectName",
+                    "label": "项目名称"
+                  },
+                  {
+                    "name": "manager",
+                    "label": "负责人"
+                  },
+                  {
+                    "name": "startDate",
+                    "label": "开始日期",
+                    "type": "date"
+                  },
+                  {
+                    "name": "endDate",
+                    "label": "结束日期",
+                    "type": "date"
+                  },
+                  {
+                    "name": "status",
+                    "label": "状态",
+                    "type": "mapping",
+                    "map": {
+                      "not_started": {
+                        "text": "未开始",
+                        "status": "default"
+                      },
+                      "in_progress": {
+                        "text": "进行中",
+                        "status": "processing"
+                      },
+                      "completed": {
+                        "text": "已完成",
+                        "status": "success"
+                      },
+                      "delayed": {
+                        "text": "已延期",
+                        "status": "warning"
+                      }
+                    }
+                  },
+                  {
+                    "name": "progress",
+                    "label": "进度",
+                    "type": "progress"
+                  },
+                  {
+                    "type": "Operation",
+                    "label": "操作",
+                    "buttons": [
+                      {
+                        "type": "Button",
+                        "label": "查看详情",
+                        "level": "link",
+                        "actionType": "dialog",
+                        "dialog": {
+                          "title": "项目详情",
+                          "body": {
+                            "type": "Form",
+                            "body": [
+                              {
+                                "type": "Static",
+                                "name": "projectName",
+                                "label": "项目名称"
+                              },
+                              {
+                                "type": "Static",
+                                "name": "manager",
+                                "label": "负责人"
+                              },
+                              {
+                                "type": "Static",
+                                "name": "startDate",
+                                "label": "开始日期"
+                              },
+                              {
+                                "type": "Static",
+                                "name": "endDate",
+                                "label": "结束日期"
+                              },
+                              {
+                                "type": "Static",
+                                "name": "status",
+                                "label": "状态"
+                              },
+                              {
+                                "type": "Static",
+                                "name": "progress",
+                                "label": "进度"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "Button",
+                        "label": "编辑",
+                        "level": "link",
+                        "actionType": "dialog",
+                        "dialog": {
+                          "title": "编辑项目",
+                          "body": {
+                            "type": "Form",
+                            "api": "/api/project/update",
+                            "body": [
+                              {
+                                "type": "Input",
+                                "name": "projectName",
+                                "label": "项目名称",
+                                "required": true
+                              },
+                              {
+                                "type": "Input",
+                                "name": "manager",
+                                "label": "负责人",
+                                "required": true
+                              },
+                              {
+                                "type": "DatePicker",
+                                "name": "startDate",
+                                "label": "开始日期",
+                                "required": true
+                              },
+                              {
+                                "type": "DatePicker",
+                                "name": "endDate",
+                                "label": "结束日期",
+                                "required": true
+                              },
+                              {
+                                "type": "Select",
+                                "name": "status",
+                                "label": "状态",
+                                "options": [
+                                  {
+                                    "label": "未开始",
+                                    "value": "not_started"
+                                  },
+                                  {
+                                    "label": "进行中",
+                                    "value": "in_progress"
+                                  },
+                                  {
+                                    "label": "已完成",
+                                    "value": "completed"
+                                  },
+                                  {
+                                    "label": "已延期",
+                                    "value": "delayed"
+                                  }
+                                ],
+                                "required": true
+                              },
+                              {
+                                "type": "InputNumber",
+                                "name": "progress",
+                                "label": "进度",
+                                "min": 0,
+                                "max": 100,
+                                "suffix": "%"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "Button",
+                        "label": "删除",
+                        "level": "link",
+                        "actionType": "ajax",
+                        "confirmText": "确定要删除该项目吗？",
+                        "api": "/api/project/delete?id=${id}"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }

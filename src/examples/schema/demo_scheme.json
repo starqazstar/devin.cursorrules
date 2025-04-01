@@ -1,0 +1,240 @@
+{
+    "componentName": "Page",
+    "id": "node_ocm7lmzei81",
+    "props": {},
+    "hidden": false,
+    "title": "个人信息页面",
+    "isLocked": false,
+    "condition": true,
+    "fileName": "/",
+    "conditionGroup": "",
+    "i18n": {
+      "zh-CN": {
+        "hello": "你好"
+      },
+      "en-US": {
+        "hello": "hello"
+      }
+    },
+    "children": [
+      {
+        "componentName": "FormilyForm",
+        "id": "node_ocm88i3hy21",
+        "props": {
+          "labelCol": 3,
+          "wrapperCol": 14,
+          "layout": "inline",
+          "width": "100%",
+          "size": "middle",
+          "colon": false,
+          "clearLabelSpace": false,
+          "emitEventName": "",
+          "initFetch": false,
+          "broadcast": true
+        },
+        "hidden": false,
+        "title": "个人信息",
+        "isLocked": false,
+        "condition": true,
+        "conditionGroup": "",
+        "children": [
+          {
+            "componentName": "FormilyInput",
+            "id": "node_ocm88i3hy22",
+            "props": {
+              "showLabel": true,
+              "label": "姓名",
+              "required": true,
+              "name": "name",
+              "defaultValue": "",
+              "pattern": "",
+              "validator": ""
+            },
+            "hidden": false,
+            "title": "姓名",
+            "isLocked": false,
+            "condition": true,
+            "conditionGroup": ""
+          },
+          {
+            "componentName": "FormilyInputNumber",
+            "id": "node_ocm88i3hy23",
+            "props": {
+              "showLabel": true,
+              "label": "年龄",
+              "required": true,
+              "name": "age",
+              "defaultValue": "",
+              "pattern": "",
+              "validator": ""
+            },
+            "hidden": false,
+            "title": "年龄",
+            "isLocked": false,
+            "condition": true,
+            "conditionGroup": ""
+          },
+          {
+            "componentName": "FormSelect",
+            "id": "node_ocm88i3hy24",
+            "props": {
+              "showLabel": true,
+              "label": "性别",
+              "required": true,
+              "name": "gender",
+              "defaultValue": "",
+              "enum": [
+                {
+                  "label": "男",
+                  "value": "male"
+                },
+                {
+                  "label": "女",
+                  "value": "female"
+                }
+              ],
+              "pattern": "",
+              "validator": "",
+              "mode": "combobox",
+              "showSearch": false,
+              "virtual": false
+            },
+            "hidden": false,
+            "title": "性别",
+            "isLocked": false,
+            "condition": true,
+            "conditionGroup": ""
+          },
+          {
+            "componentName": "FormilyInput",
+            "id": "node_ocm88i3hy25",
+            "props": {
+              "showLabel": true,
+              "label": "爱好",
+              "required": false,
+              "name": "hobbies",
+              "defaultValue": "",
+              "pattern": "",
+              "validator": ""
+            },
+            "hidden": false,
+            "title": "爱好",
+            "isLocked": false,
+            "condition": true,
+            "conditionGroup": ""
+          },
+          {
+            "componentName": "FormilyInput",
+            "id": "node_ocm88i3hy26",
+            "props": {
+              "showLabel": true,
+              "label": "住址",
+              "required": false,
+              "name": "address",
+              "defaultValue": "",
+              "pattern": "",
+              "validator": ""
+            },
+            "hidden": false,
+            "title": "住址",
+            "isLocked": false,
+            "condition": true,
+            "conditionGroup": ""
+          },
+          {
+            "componentName": "FormilySwitch",
+            "id": "node_ocm88i3hy27",
+            "props": {
+              "showLabel": true,
+              "label": "是否婚配",
+              "required": false,
+              "name": "isMarried",
+              "defaultValue": false,
+              "pattern": "",
+              "validator": "",
+              "size": "default"
+            },
+            "hidden": false,
+            "title": "是否婚配",
+            "isLocked": false,
+            "condition": true,
+            "conditionGroup": ""
+          }
+        ]
+      },
+      {
+        "componentName": "FormilyTable",
+        "id": "node_ocm7lmzei82",
+        "props": {
+          "columns": [
+            {
+              "title": "姓名",
+              "dataIndex": "name",
+              "key": "name"
+            },
+            {
+              "title": "年龄",
+              "dataIndex": "age",
+              "key": "age"
+            },
+            {
+              "title": "性别",
+              "dataIndex": "gender",
+              "key": "gender"
+            },
+            {
+              "title": "爱好",
+              "dataIndex": "hobbies",
+              "key": "hobbies"
+            },
+            {
+              "title": "住址",
+              "dataIndex": "address",
+              "key": "address"
+            },
+            {
+              "title": "是否婚配",
+              "dataIndex": "isMarried",
+              "key": "isMarried"
+            }
+          ],
+          "dataSource": [
+            {
+              "name": "李典胜",
+              "age": 28,
+              "gender": "男",
+              "hobbies": "读书, 编程",
+              "address": "北京市",
+              "isMarried": true
+            },
+            {
+              "name": "张三",
+              "age": 30,
+              "gender": "女",
+              "hobbies": "旅游, 美食",
+              "address": "上海市",
+              "isMarried": false
+            }
+          ],
+          "pagination": true,
+          "openRowSelection": false,
+          "requestOnMount": false,
+          "hiddenOnNoRequest": false,
+          "supportScroll": false,
+          "rowKey": "id",
+          "showHeader": true,
+          "bordered": true,
+          "size": "default",
+          "tableLayout": "",
+          "supportScrollX": 1000
+        },
+        "hidden": false,
+        "title": "预览数据",
+        "isLocked": false,
+        "condition": true,
+        "conditionGroup": ""
+      }
+    ]
+  }
+  
+  
