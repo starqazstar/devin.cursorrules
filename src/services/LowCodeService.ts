@@ -48,9 +48,9 @@ export class LowCodeService {
     };
     this.config = {
       apiUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002',
-      timeout: 30000, // 30 seconds
-      retryCount: 3,
-      retryDelay: 1000 // 1 second
+      timeout: parseInt(import.meta.env.VITE_REQUEST_TIMEOUT || '60000'), // 从环境变量读取超时时间，默认 60 秒
+      retryCount: parseInt(import.meta.env.VITE_RETRY_COUNT || '3'),
+      retryDelay: parseInt(import.meta.env.VITE_RETRY_DELAY || '1000')
     };
   }
 
@@ -82,9 +82,13 @@ export class LowCodeService {
    * 发送请求并重试
    */
   private async fetchWithRetry(url: string, options: RequestInit, retryCount = this.config.retryCount): Promise<Response> {
+    let timeoutId: NodeJS.Timeout | null = null;
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
+      timeoutId = setTimeout(() => {
+        controller.abort();
+        timeoutId = null;
+      }, this.config.timeout);
 
       const startTime = Date.now();
       const response = await fetch(url, {
@@ -93,7 +97,10 @@ export class LowCodeService {
       });
       const endTime = Date.now();
 
-      clearTimeout(timeoutId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
 
       this.requestCount++;
       this.totalResponseTime += (endTime - startTime);
@@ -106,9 +113,19 @@ export class LowCodeService {
 
       return response;
     } catch (error) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
       if (error instanceof Error && error.name === 'AbortError') {
+        if (retryCount > 0) {
+          console.warn(`请求超时，将在 ${this.config.retryDelay}ms 后重试，剩余重试次数：${retryCount}`);
+          await new Promise(resolve => setTimeout(resolve, this.config.retryDelay));
+          return this.fetchWithRetry(url, options, retryCount - 1);
+        }
         throw new Error(`请求超时（${this.config.timeout}ms）`);
       }
+      
       if (retryCount > 0) {
         console.warn(`请求出错，将在 ${this.config.retryDelay}ms 后重试，剩余重试次数：${retryCount}`);
         await new Promise(resolve => setTimeout(resolve, this.config.retryDelay));
@@ -179,7 +196,7 @@ export class LowCodeService {
       }
 
       // 使用 DeepSeek 优化 Schema
-      return await this.optimizeSchema(baseSchema);
+      return await this.optimizeGeneratedSchema(baseSchema);
     } catch (error) {
       console.error('生成页面 Schema 失败:', error);
       return null;
@@ -206,9 +223,23 @@ export class LowCodeService {
   }
 
   /**
+   * 优化 Schema
+   */
+  public async optimizeSchema(schema: any, componentName: string): Promise<any> {
+    return this.optimizeSchemaStructure(schema, componentName);
+  }
+
+  /**
+   * 验证 Schema
+   */
+  public async validateSchema(schema: any, materials: string[]): Promise<any> {
+    return this.validateSchemaWithMaterials(schema, materials);
+  }
+
+  /**
    * 优化生成的 Schema
    */
-  private async optimizeSchema(schema: PageSchema): Promise<PageSchema> {
+  private async optimizeGeneratedSchema(schema: PageSchema): Promise<PageSchema> {
     try {
       const response = await this.llmService.optimizeSchema(JSON.stringify(schema, null, 2));
 
@@ -361,7 +392,7 @@ ${request.description}
       const jsonStr = content.replace(/```json\n|\n```/g, '');
       const schema = JSON.parse(jsonStr);
       
-      if (this.validateSchema(schema)) {
+      if (this.validateBasicSchema(schema)) {
         return schema;
       }
       console.error('Schema 验证失败:', schema);
@@ -373,9 +404,9 @@ ${request.description}
   }
 
   /**
-   * 验证 Schema
+   * 验证基础 Schema 结构
    */
-  private validateSchema(schema: any): schema is PageSchema {
+  private validateBasicSchema(schema: any): schema is PageSchema {
     return (
       schema &&
       typeof schema === 'object' &&
@@ -401,5 +432,119 @@ ${request.description}
         '验证参考 Schema 格式'
       ]
     };
+  }
+
+  /**
+   * 使用 DeepSeek 优化 Schema
+   */
+  private async optimizeSchemaWithDeepSeek(schema: PageSchema): Promise<PageSchema> {
+    try {
+      const schemaStr = JSON.stringify(schema, null, 2);
+      const response = await this.llmService.optimizeSchema(schemaStr);
+      
+      if (!response.success || !response.content) {
+        console.error('Schema 优化失败:', response.error);
+        return schema;
+      }
+
+      try {
+        const optimizedSchema = JSON.parse(response.content) as PageSchema;
+        return optimizedSchema;
+      } catch (parseError) {
+        console.error('优化后的 Schema 解析失败:', parseError);
+        return schema;
+      }
+    } catch (error) {
+      console.error('Schema 优化失败:', error);
+      return schema;
+    }
+  }
+
+  /**
+   * 验证 Schema 结构和类型
+   */
+  private validateSchemaStructure(schema: any): schema is PageSchema {
+    if (!schema || typeof schema !== 'object') {
+      return false;
+    }
+
+    // 基本属性验证
+    if (!schema.version || typeof schema.version !== 'string') {
+      return false;
+    }
+
+    if (!schema.components || !Array.isArray(schema.components)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * 验证 Schema 与物料的兼容性
+   */
+  public async validateSchemaWithMaterials(schema: any, materials: string[]): Promise<any> {
+    // 验证 schema 结构
+    if (!this.validateSchemaStructure(schema)) {
+      throw new Error('Invalid schema structure');
+    }
+
+    // 验证组件与物料的兼容性
+    const materialSet = new Set(materials);
+    const validateComponent = (component: any): boolean => {
+      if (!component || !component.type) {
+        return false;
+      }
+      return materialSet.has(component.type);
+    };
+
+    // 递归验证所有组件
+    const validateComponents = (components: any[]): boolean => {
+      return components.every(component => {
+        const isValid = validateComponent(component);
+        if (component.children) {
+          return isValid && validateComponents(component.children);
+        }
+        return isValid;
+      });
+    };
+
+    if (!validateComponents(schema.components)) {
+      throw new Error('Schema contains incompatible components');
+    }
+
+    return schema;
+  }
+
+  /**
+   * 优化 Schema 的组件结构和属性
+   */
+  public async optimizeSchemaStructure(schema: any, componentName: string): Promise<any> {
+    // 验证 schema 结构
+    if (!this.validateSchemaStructure(schema)) {
+      throw new Error('Invalid schema structure');
+    }
+
+    // 根据组件名称优化 schema
+    const schemaWithContext = {
+      ...schema,
+      componentContext: {
+        name: componentName,
+        protocol: this.materialProtocol
+      }
+    };
+
+    const schemaStr = JSON.stringify(schemaWithContext, null, 2);
+    const response = await this.llmService.optimizeSchema(schemaStr);
+
+    if (!response.success || !response.content) {
+      throw new Error(response.error || 'Schema optimization failed');
+    }
+
+    try {
+      return JSON.parse(response.content);
+    } catch (error) {
+      throw new Error('Failed to parse optimized schema');
+    }
   }
 } 

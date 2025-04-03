@@ -64,3 +64,44 @@ credentials.json
 
 # specstory
 .specstory/
+
+# 项目特定忽略
+/docs/
+/src/examples/
+
+# 依赖
+/node_modules
+/venv
+
+# 构建输出
+/dist
+/build
+/.vite
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*.swo
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 日志
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 缓存
+.cache/
+.npm/
+.eslintcache
+*.tsbuildinfo

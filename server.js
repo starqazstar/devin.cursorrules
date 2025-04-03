@@ -1,7 +1,8 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const fetch = require('node-fetch');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import fetch from 'node-fetch';
+import lowcodeRouter from './src/routes/lowcode.js';
 
 // 加载环境变量
 dotenv.config();
@@ -22,19 +23,23 @@ const monitoringConfig = {
   slowThreshold: parseInt(process.env.SLOW_REQUEST_THRESHOLD) || 1000
 };
 
+// DeepSeek 配置
+const deepseekConfig = {
+  apiKey: process.env.DEEPSEEK_API_KEY,
+  apiUrl: process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com/v1/chat/completions',
+  model: 'deepseek-chat',
+  temperature: 0.7,
+  maxTokens: 2000,
+  timeout: parseInt(process.env.REQUEST_TIMEOUT) || 30000
+};
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 // 环境变量配置
 const config = {
-  deepseek: {
-    apiKey: process.env.DEEPSEEK_API_KEY,
-    apiUrl: process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com/v1/chat/completions',
-    model: 'deepseek-chat',
-    temperature: 0.7,
-    maxTokens: 2000
-  },
+  deepseek: deepseekConfig,
   server: {
     port: process.env.BACKEND_PORT || 3002,
     env: process.env.NODE_ENV || 'development'
@@ -271,22 +276,30 @@ app.post('/api/generate', validateRequest, async (req, res, next) => {
     });
 
     const startTime = Date.now();
-    const response = await fetch(config.deepseek.apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.deepseek.apiKey}`
-      },
-      body: JSON.stringify({
-        model: config.deepseek.model,
-        messages: [
-          {
-            role: 'system',
-            content: '你是一个专业的低代码平台页面生成助手，负责将用户需求转换为符合规范的页面 Schema。'
-          },
-          {
-            role: 'user',
-            content: `请根据以下描述生成页面 Schema：
+    
+    // 设置请求超时
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, deepseekConfig.timeout);
+
+    try {
+      const response = await fetch(deepseekConfig.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${deepseekConfig.apiKey}`
+        },
+        body: JSON.stringify({
+          model: deepseekConfig.model,
+          messages: [
+            {
+              role: 'system',
+              content: '你是一个专业的低代码平台页面生成助手，负责将用户需求转换为符合规范的页面 Schema。'
+            },
+            {
+              role: 'user',
+              content: `请根据以下描述生成页面 Schema：
 描述：${description}
 可用组件：${components.join(', ')}
 
@@ -295,48 +308,64 @@ app.post('/api/generate', validateRequest, async (req, res, next) => {
 2. 只使用提供的组件列表中的组件
 3. 返回的 JSON 必须是有效的页面配置
 4. 确保所有必需的属性都已设置`
-          }
-        ],
-        temperature: config.deepseek.temperature,
-        max_tokens: config.deepseek.maxTokens
-      })
-    });
+            }
+          ],
+          temperature: deepseekConfig.temperature,
+          max_tokens: deepseekConfig.maxTokens
+        }),
+        signal: controller.signal
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`DeepSeek API 调用失败: ${response.status} - ${errorText}`);
-    }
+      clearTimeout(timeout);
 
-    const data = await response.json();
-    const endTime = Date.now();
-    
-    console.log(`[${req.requestId}] API 响应:`, data);
-
-    // 提取生成的 Schema
-    let schema;
-    try {
-      const content = data.choices[0].message.content;
-      // 移除 markdown 代码块标记
-      const jsonStr = content.replace(/```json\n?|\n?```/g, '');
-      schema = JSON.parse(jsonStr);
-    } catch (err) {
-      throw new Error('Schema 解析失败: ' + err.message);
-    }
-
-    res.json({
-      success: true,
-      data: schema,
-      meta: {
-        generationTime: endTime - startTime,
-        modelUsed: config.deepseek.model,
-        promptTokens: data.usage?.prompt_tokens,
-        totalTokens: data.usage?.total_tokens
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[${req.requestId}] DeepSeek API 错误:`, {
+          status: response.status,
+          error: errorText
+        });
+        throw new Error(`DeepSeek API 调用失败: ${response.status} - ${errorText}`);
       }
-    });
+
+      const data = await response.json();
+      const endTime = Date.now();
+      
+      console.log(`[${req.requestId}] API 响应:`, data);
+
+      // 提取生成的 Schema
+      let schema;
+      try {
+        const content = data.choices[0].message.content;
+        // 移除 markdown 代码块标记
+        const jsonStr = content.replace(/```json\n?|\n?```/g, '');
+        schema = JSON.parse(jsonStr);
+      } catch (err) {
+        console.error(`[${req.requestId}] Schema 解析失败:`, err);
+        throw new Error('Schema 解析失败: ' + err.message);
+      }
+
+      res.json({
+        success: true,
+        data: schema,
+        meta: {
+          generationTime: endTime - startTime,
+          modelUsed: deepseekConfig.model,
+          promptTokens: data.usage?.prompt_tokens,
+          totalTokens: data.usage?.total_tokens
+        }
+      });
+    } catch (err) {
+      clearTimeout(timeout);
+      throw err;
+    }
   } catch (err) {
+    console.error(`[${req.requestId}] 请求处理错误:`, err);
     next(err);
   }
 });
+
+// 注册路由
+app.use('/api/lowcode', lowcodeRouter);
 
 // 应用错误处理中间件
 app.use(errorHandler);

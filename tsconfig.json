@@ -14,11 +14,16 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
+    "baseUrl": "src",
     "paths": {
-      "@/*": ["src/*"]
-    }
+      "@/*": ["./*"]
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
+    "types": ["node", "koa"]
   },
-  "include": ["src"],
+  "include": ["src/**/*", "src/**/*.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 } 
